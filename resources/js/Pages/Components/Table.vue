@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-    import { defineProps, computed, ref } from 'vue';
+    import { defineProps, computed } from 'vue';
 
     const props = defineProps({
         tables: {
@@ -22,7 +22,8 @@
         },
         zoomLevel: {
             type: Number
-        }
+        },
+        cellSize: Number
     })
 
     const startDrag = (index, event) => {
@@ -36,9 +37,9 @@
             const dx = event.clientX - initialX;
             const dy = event.clientY - initialY;
 
-            const gridSize = 20;
-            const snappedX = Math.round(dx / gridSize) * gridSize;
-            const snappedY = Math.round(dy / gridSize) * gridSize;
+            // const gridSize = 50;
+            const snappedX = Math.round(dx / props.cellSize) * props.cellSize;
+            const snappedY = Math.round(dy / props.cellSize) * props.cellSize;
 
             table.x = snappedX;
             table.y = snappedY;
@@ -65,8 +66,8 @@
 
 <style scoped>
 .table {
-  width: 120px;
-  height: 80px;
+  width: 240px;
+  height: 320px;
   border: 1px solid #000;
   background-color: #f9f9f9;
   position: absolute;

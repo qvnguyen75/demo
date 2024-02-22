@@ -1,21 +1,25 @@
 <template>
-  <button @click="createTable">Create table</button>
+  <button @click="createTable" class="btn">Create table</button>
+  <button @click="toggleNodes" class="btn">Toggle nodes</button>
+  <button @click="toggleGrid" class="btn">Toggle grid</button>
+
   <div>
     <Modal v-if="showModal" :showModal="showModal" @tableSaved="handleTableSaved" @modalClosed="handleModalClosed" />
-    
     <div id="diagram-container" ref="container" @wheel.prevent="handleZoom">
       <div class="grid" :style="gridStyle"></div>
       <div class="grid-container">
-        <Node v-for="(cell, index) in grid" :key="index" :position="cell.position" class="node" />
+        <!-- <Node v-for="(cell, index) in grid" :key="index" :cell="cell" :position="cell.position" class="node" /> -->
+        <Node v-if="showNodes" v-for="(node, index) in nodes" :key="index" :node="node" :cellSize="cellSize" class="node"/>
       </div>
-      <Table :tables="tables" :zoomLevel="zoomLevel" />
-      <svg viewBox="0 0 100 100" id="mySvg"></svg>
+      <Table :tables="tables" :zoomLevel="zoomLevel" :cellSize="cellSize" />
+      <svg v-if="showGrid" id="lines" width="10000" height="10000" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, nextTick  } from 'vue';
+
   import Modal from './Components/Modal.vue';
   import Table from './Components/Table.vue';
   import Node from './Components/Node.vue';
@@ -23,40 +27,72 @@
   const showModal = ref(false);
   const tables    = ref([]);
   const zoomLevel = ref(1); // startwaarde
-  const cellSize  = 20; 
+  const cellSize  = ref(80);
+  // const maxNodes  = ref(25);
 
-  const grid = ref([]);
   const nodes = ref([]);
-
-
+  const showNodes = ref(true)
+  const showGrid = ref(true)
 
   const createTable = () => {
     showModal.value = true;
   }
 
-  
-  onMounted(() => {
-    const test = document.getElementById("diagram-container");
-    const rowSize = test.clientHeight / cellSize;
-    const colSize = test.clientWidth / cellSize;
+  const toggleNodes = () => {
+    showNodes.value = !showNodes.value
+  }
 
+  const toggleGrid = () => {
+    showGrid.value = !showGrid.value
+  }
+
+  const createNodes = () => {
     let id = 0;
-    for (let i = 0; i <= colSize; i++) {
-      for (let j = 0; j <= rowSize; j++) {
-      
-        grid.value.push({position: [i, j]});
-         const node = {
+    for (let i = 0; i <= 100; i++) {
+      for (let j = 0; j <= 100; j++) {
+        const node = {
+            id: id,
             position: {positionX:i, positionY: j},
-            nextNode: {
-              positionX: i,
-              positionY: j + 1
-            }
+            // nextNode: {
+            //   positionX: i,
+            //   positionY: j + 1
+            // }
         }
+
+        id++;
         nodes.value.push(node);
       }
-    }
-    // drawLine(nodes.value, "black", .1);    
-  })
+    } 
+  }
+
+  nextTick(() => {
+      for (let i = 0; i < nodes.value.length; i++) {
+          let node = nodes.value[i];
+
+          let positionX = node.position.positionX * cellSize.value;
+          let positionY = node.position.positionY * cellSize.value;
+        
+          let nextNode = nodes.value[i + 1]
+          let neighbourNode = nodes.value[i + 101];
+
+          if (nextNode == undefined) { return }
+
+          if (node.position.positionX === nextNode.position.positionX) {
+            
+            let nextNodePositionX = nextNode.position.positionX * cellSize.value;
+            let nextNodePositionY = nextNode.position.positionY * cellSize.value;
+            
+            drawLine(positionX, positionY, nextNodePositionX, nextNodePositionY)
+          }
+
+          if (neighbourNode) {
+            let neighbourNode_position_x = neighbourNode.position.positionX * cellSize.value;
+            let neighbourNode_position_y = neighbourNode.position.positionY * cellSize.value;
+
+            drawLine(positionX, positionY, neighbourNode_position_x, neighbourNode_position_y)
+          }
+      }
+  });
 
   const handleTableSaved = (table) => {
     if (table.tableName && table.property) {
@@ -89,42 +125,21 @@
     }
   }
 
-  const prepareLines = (start, eind) => {
-
+  const drawLine = (x1, y1, x2, y2) => {
+      const svg = document.getElementById('lines');
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", x1);
+      line.setAttribute("y1", y1);
+      line.setAttribute("x2", x2);
+      line.setAttribute("y2", y2);
+      line.setAttribute("stroke", "black");
+      line.setAttribute("stroke-width", 1);
+      svg.appendChild(line);
   }
 
-  const drawLine = (nodes, strokeColor, strokeWidth) => {
-    for (let i = 0; i <= nodes.length; i++) {
-
-    }
-    const svg = document.getElementById('mySvg');
-    const svgNamespace = "http://www.w3.org/2000/svg";
-    console.log(nodes[0].position.positionX, nodes[0].nextNode);
-    nodes.forEach((node) => {
-      console.log(node)
-      // const line = document.createElementNS(svgNamespace, "line");
-      // console.log(node.position.positionX);
-      // console.log(node.position.positionY);
-      // console.log(node.nextNode.positionX);
-      // console.log(node.nextNode.positionX);
-      
-      // line.setAttribute("x1", node.position.positionX);
-      // line.setAttribute("y1", node.position.positionY);
-      // line.setAttribute("x2", node.nextNode.positionX);
-      // line.setAttribute("y2", node.nextNode.positionY);
-      // line.setAttribute("stroke", strokeColor);
-      // line.setAttribute("stroke-width", strokeWidth);
-      // svg.appendChild(line)
-    }) 
-
-
-    // drawLine(startNode.nextNode, 'black', .1)
-  }
-
-  
-
-  // drawLine()
-
+  onMounted(() => {
+    createNodes();
+  })
 </script>
 
 <style scoped>
@@ -154,5 +169,19 @@
   position: absolute;
   pointer-events: none; /* This ensures that the SVG does not capture mouse events */
 }
+
+.btn {
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+
+.node {
+    width: 5px;
+    height: 5px; 
+    background-color: blue; 
+    border-radius: 50%;
+    position: absolute;
+  }
+
 </style>
 

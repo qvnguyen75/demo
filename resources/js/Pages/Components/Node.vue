@@ -4,34 +4,31 @@
   </template>
   
   <script setup>
+  import { defineProps } from 'vue';
     const props = defineProps({
       isStart: Boolean,
       isEnd: Boolean,
       visited: Boolean,
-      position: {
-        type: Array,
-        required: true
-      }
+      node: {
+          id: Number,
+          position: {
+          type: Array,
+          required: true,
+          nextNode: Object
+        }
+      },
+      cellSize: Number
+   
     });
 
-
     const nodeStyle = {
-        left: `${props.position[0] * 20}px`, 
-        top: `${props.position[1] * 20}px`,
+        left: `${props.node.position.positionX * props.cellSize}px`, 
+        top: `${props.node.position.positionY * props.cellSize}px`,
     };
+
   </script>
 
-  
-  
   <style scoped>
-  .node {
-    width: 3px;
-    height: 3px; 
-    background-color: blue; 
-    border-radius: 50%;
-    position: absolute;
-  }
-  
   .start {
     background-color: green;
   }
