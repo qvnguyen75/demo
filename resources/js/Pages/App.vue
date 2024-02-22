@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, nextTick  } from 'vue';
+  import { ref, computed, onMounted, nextTick, defineProps  } from 'vue';
 
   import Modal from './Components/Modal.vue';
   import Table from './Components/Table.vue';
@@ -34,6 +34,11 @@
   const showNodes = ref(true)
   const showGrid = ref(true)
 
+  const props = defineProps({
+    entity: Array
+  })
+
+  
   const createTable = () => {
     showModal.value = true;
   }
@@ -137,8 +142,12 @@
       svg.appendChild(line);
   }
 
+
+
   onMounted(() => {
     createNodes();
+    console.log(props.entity.name);
+    tables.value.push({ name: props.entity.name, foreignKey: props.entity.foreign_key, x: props.entity.position_x, y: props.entity.position_y });
   })
 </script>
 

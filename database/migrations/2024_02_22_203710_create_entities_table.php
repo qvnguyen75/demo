@@ -14,11 +14,9 @@ return new class extends Migration
         Schema::create('entities', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('foreign_key');
-            $table->integer('position_x)');
-            $table->integer('position_y)');
-            $table->integer('position_left_x)');
-            $table->integer('position_top_x)');
+            $table->string('foreign_key');
+            $table->integer('position_x');
+            $table->integer('position_y');
             $table->timestamps();
         });
     }
