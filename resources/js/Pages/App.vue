@@ -147,7 +147,12 @@
   onMounted(() => {
     createNodes();
     console.log(props.entity.name);
-    tables.value.push({ name: props.entity.name, foreignKey: props.entity.foreign_key, x: props.entity.position_x, y: props.entity.position_y });
+    tables.value.push({ 
+      name: props.entity.name, 
+      foreignKey: props.entity.foreign_key, 
+      x: props.entity.position_x, 
+      y: props.entity.position_y 
+    });
   })
 </script>
 
