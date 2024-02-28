@@ -8,8 +8,7 @@
     <div id="diagram-container" ref="container" @wheel.prevent="handleZoom">
       <div class="grid" :style="gridStyle"></div>
       <div class="grid-container">
-        <!-- <Node v-for="(cell, index) in grid" :key="index" :cell="cell" :position="cell.position" class="node" /> -->
-        <Node v-if="showNodes" v-for="(node, index) in nodes" :key="index" :node="node" :cellSize="cellSize" class="node"/>
+        <Node v-if="showNodes" v-for="(node, index) in nodes" :key="index" :node="node" :cellSize="cellSize" class="node" @nodeClicked="handleNodeClick"/>
       </div>
       <Table :tables="tables" :zoomLevel="zoomLevel" :cellSize="cellSize" />
       <svg v-if="showGrid" id="lines" width="10000" height="10000" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -23,22 +22,23 @@
   import Modal from './Components/Modal.vue';
   import Table from './Components/Table.vue';
   import Node from './Components/Node.vue';
+  import { Item } from './script.js';
 
   const showModal = ref(false);
   const tables    = ref([]);
   const zoomLevel = ref(1); // startwaarde
-  const cellSize  = ref(80);
+  const cellSize  = ref(50);
   // const maxNodes  = ref(25);
 
-  const nodes = ref([]);
   const showNodes = ref(true)
   const showGrid = ref(true)
 
   const props = defineProps({
-    entity: Array
+    entity: Object
   })
 
-  
+  const nodes= ref([])
+
   const createTable = () => {
     showModal.value = true;
   }
@@ -52,49 +52,46 @@
   }
 
   const createNodes = () => {
-    let id = 0;
-    for (let i = 0; i <= 100; i++) {
-      for (let j = 0; j <= 100; j++) {
-        const node = {
-            id: id,
-            position: {positionX:i, positionY: j},
-            // nextNode: {
-            //   positionX: i,
-            //   positionY: j + 1
-            // }
-        }
-
-        id++;
-        nodes.value.push(node);
+    // columns
+    for (let i = 0; i <= 40; i++) {
+      // rows
+      for (let j = 0; j <= 18; j++) {
+        const node = new Item(i, j);
+        nodes.value.push(node)
       }
     } 
   }
 
+  const handleNodeClick = (currentNode) => {
+    // mark current node
+    console.log(currentNode)
+  }
+
   nextTick(() => {
-      for (let i = 0; i < nodes.value.length; i++) {
+          for (let i = 0; i < nodes.value.length; i++) {
           let node = nodes.value[i];
 
-          let positionX = node.position.positionX * cellSize.value;
-          let positionY = node.position.positionY * cellSize.value;
+          let positionX = node.position_x * cellSize.value;
+          let positionY = node.position_y * cellSize.value;
         
           let nextNode = nodes.value[i + 1]
-          let neighbourNode = nodes.value[i + 101];
+          let neighbourNode = nodes.value[i + (18 + 1)]; // vieze hek needs fix
 
           if (nextNode == undefined) { return }
 
-          if (node.position.positionX === nextNode.position.positionX) {
+          if (node.position_x === nextNode.position_x) {
             
-            let nextNodePositionX = nextNode.position.positionX * cellSize.value;
-            let nextNodePositionY = nextNode.position.positionY * cellSize.value;
+            let nextNodePosition_x = nextNode.position_x * cellSize.value;
+            let nextNodePosition_y = nextNode.position_y * cellSize.value;
             
-            drawLine(positionX, positionY, nextNodePositionX, nextNodePositionY)
+            drawLine(positionX, positionY, nextNodePosition_x, nextNodePosition_y)
           }
 
           if (neighbourNode) {
-            let neighbourNode_position_x = neighbourNode.position.positionX * cellSize.value;
-            let neighbourNode_position_y = neighbourNode.position.positionY * cellSize.value;
+            let neighbourNodePosition_x = neighbourNode.position_x * cellSize.value;
+            let neighbourNodePposition_y = neighbourNode.position_y * cellSize.value;
 
-            drawLine(positionX, positionY, neighbourNode_position_x, neighbourNode_position_y)
+            drawLine(positionX, positionY, neighbourNodePosition_x, neighbourNodePposition_y)
           }
       }
   });
@@ -142,46 +139,18 @@
       svg.appendChild(line);
   }
 
-
-
   onMounted(() => {
     createNodes();
-    console.log(props.entity.name);
-    tables.value.push({ 
-      name: props.entity.name, 
-      foreignKey: props.entity.foreign_key, 
-      x: props.entity.position_x, 
-      y: props.entity.position_y 
-    });
   })
 </script>
 
 <style scoped>
 #diagram-container {
   width: 99vw;
-  height: 95vh;
+  height: 94.6vh;
   border: 1px solid #ccc;
   position: relative;
   overflow: hidden;
-}
-
-/* .grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 20px); 
-  grid-template-rows: repeat(auto-fill, 20px);
-} */
-
-/* .grid {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px);
-  background-size: 20px 20px;
-} */
-
-.lines {
-  position: absolute;
-  pointer-events: none; /* This ensures that the SVG does not capture mouse events */
 }
 
 .btn {
@@ -190,8 +159,8 @@
 }
 
 .node {
-    width: 5px;
-    height: 5px; 
+    width: 50px;
+    height: 50px; 
     background-color: blue; 
     border-radius: 50%;
     position: absolute;

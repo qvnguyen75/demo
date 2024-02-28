@@ -1,30 +1,29 @@
 <!-- Node.vue -->
 <template>
-    <div class="node" :style="nodeStyle"></div>
+    <div class="node" :style="nodeStyle" @click="clickNode(node)"></div>
   </template>
   
   <script setup>
   import { defineProps } from 'vue';
-    const props = defineProps({
-      isStart: Boolean,
-      isEnd: Boolean,
-      visited: Boolean,
-      node: {
-          id: Number,
-          position: {
-          type: Array,
-          required: true,
-          nextNode: Object
-        }
-      },
-      cellSize: Number
-   
-    });
 
-    const nodeStyle = {
-        left: `${props.node.position.positionX * props.cellSize}px`, 
-        top: `${props.node.position.positionY * props.cellSize}px`,
-    };
+  const props = defineProps({
+    isStart: Boolean,
+    isEnd: Boolean,
+    visited: Boolean,
+    node: Object,
+    cellSize: Number
+  });
+
+  const emit = defineEmits(['nodeClicked'])
+
+  const nodeStyle = {
+      left: `${props.node.position_x * props.cellSize}px`, 
+      top: `${props.node.position_y * props.cellSize}px`,
+  };
+
+  const clickNode = (currentNode) => {
+    emit('nodeClicked', currentNode)
+  }
 
   </script>
 
