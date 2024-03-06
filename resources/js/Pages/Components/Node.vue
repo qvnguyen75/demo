@@ -1,10 +1,13 @@
 <!-- Node.vue -->
 <template>
-    <div class="node" :style="nodeStyle" @click="clickNode(node)"></div>
+    <div :style="[nodeStyle]" :class="{start: node.start}"  @click="clickNode(node)">
+      <p>{{ node.id }}</p>
+      <!-- <p>{{ node.position_x }} {{ node.position_y }}</p> -->
+    </div>
   </template>
   
   <script setup>
-  import { defineProps } from 'vue';
+  import { defineProps, ref, onMounted, watch, nextTick } from 'vue';
 
   const props = defineProps({
     isStart: Boolean,
@@ -17,10 +20,10 @@
   const emit = defineEmits(['nodeClicked'])
 
   const nodeStyle = {
-      left: `${props.node.position_x * props.cellSize}px`, 
-      top: `${props.node.position_y * props.cellSize}px`,
+    left: `${props.node.position_x * props.cellSize}px`, 
+    top: `${props.node.position_y * props.cellSize}px`,
   };
-
+  
   const clickNode = (currentNode) => {
     emit('nodeClicked', currentNode)
   }

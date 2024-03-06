@@ -8,7 +8,7 @@
     <div id="diagram-container" ref="container" @wheel.prevent="handleZoom">
       <div class="grid" :style="gridStyle"></div>
       <div class="grid-container">
-        <Node v-if="showNodes" v-for="(node, index) in nodes" :key="index" :node="node" :cellSize="cellSize" class="node" @nodeClicked="handleNodeClick"/>
+        <Node v-if="showNodes" v-for="(node, index) in nodes" :key="index" :node="node" :cellSize="cellSize" class="node" @nodeClicked="handleNodeClick" />
       </div>
       <Table :tables="tables" :zoomLevel="zoomLevel" :cellSize="cellSize" />
       <svg v-if="showGrid" id="lines" width="10000" height="10000" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, nextTick, defineProps  } from 'vue';
+  import { ref, computed, onMounted, nextTick  } from 'vue';
 
   import Modal from './Components/Modal.vue';
   import Table from './Components/Table.vue';
@@ -27,7 +27,7 @@
   const showModal = ref(false);
   const tables    = ref([]);
   const zoomLevel = ref(1); // startwaarde
-  const cellSize  = ref(50);
+  const cellSize  = ref(100);
   // const maxNodes  = ref(25);
 
   const showNodes = ref(true)
@@ -52,19 +52,31 @@
   }
 
   const createNodes = () => {
+    let id = 0;
     // columns
-    for (let i = 0; i <= 40; i++) {
+    for (let i = 0; i <= 3; i++) {
       // rows
-      for (let j = 0; j <= 18; j++) {
+      for (let j = 0; j <= 3; j++) {
         const node = new Item(i, j);
+        node.id = id;
         nodes.value.push(node)
+        id++;
       }
     } 
   }
 
   const handleNodeClick = (currentNode) => {
-    // mark current node
-    console.log(currentNode)
+    let firstNodeSet = nodes.value.find((currentNode) => currentNode.start === true);
+
+    if (firstNodeSet) {
+      return;
+    }
+
+    if (firstNodeSet === undefined) {
+      currentNode.start = true;
+      console.log('Marked the current node as starting point!')
+      console.log('Position = ' + currentNode.position_x + ' ' + currentNode.position_y)
+    }
   }
 
   nextTick(() => {
@@ -75,16 +87,14 @@
           let positionY = node.position_y * cellSize.value;
         
           let nextNode = nodes.value[i + 1]
-          let neighbourNode = nodes.value[i + (18 + 1)]; // vieze hek needs fix
+          let neighbourNode = nodes.value[i + (3 + 1)]; // vieze hek needs fix
 
           if (nextNode == undefined) { return }
 
           if (node.position_x === nextNode.position_x) {
-            
             let nextNodePosition_x = nextNode.position_x * cellSize.value;
             let nextNodePosition_y = nextNode.position_y * cellSize.value;
-            
-            drawLine(positionX, positionY, nextNodePosition_x, nextNodePosition_y)
+            drawLine(positionX, positionY, nextNodePosition_x, nextNodePosition_y);
           }
 
           if (neighbourNode) {
@@ -159,9 +169,9 @@
 }
 
 .node {
-    width: 50px;
-    height: 50px; 
-    background-color: blue; 
+    width: 100px;
+    height: 100px; 
+    /* background-color: blue;  */
     border-radius: 50%;
     position: absolute;
   }

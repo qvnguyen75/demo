@@ -6,6 +6,8 @@ class Item {
       this.distance = Infinity;
       this.prevNode = null; 
       this.children = [];
+      this.start = false;
+      this.end = false;
     }
 }
 
