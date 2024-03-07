@@ -2,7 +2,6 @@
   <button @click="createTable" class="btn">Create table</button>
   <button @click="toggleNodes" class="btn">Toggle nodes</button>
   <button @click="toggleGrid" class="btn">Toggle grid</button>
-
   <div>
     <Modal v-if="showModal" :showModal="showModal" @tableSaved="handleTableSaved" @modalClosed="handleModalClosed" />
     <div id="diagram-container" ref="container" @wheel.prevent="handleZoom">
@@ -33,6 +32,8 @@
   const showNodes = ref(true)
   const showGrid = ref(true)
 
+  const rowSize = ref(9);
+
   const props = defineProps({
     entity: Object
   })
@@ -54,9 +55,9 @@
   const createNodes = () => {
     let id = 0;
     // columns
-    for (let i = 0; i <= 3; i++) {
+    for (let i = 0; i <= 19; i++) {
       // rows
-      for (let j = 0; j <= 3; j++) {
+      for (let j = 0; j <= rowSize.value; j++) {
         const node = new Item(i, j);
         node.id = id;
         nodes.value.push(node)
@@ -72,8 +73,13 @@
     if (firstNodeSet) {
       if (endNodeSet === undefined){
         currentNode.end = true;
-        console.log('Marked the current node as end point!')
-        console.log('Position = ' + currentNode.position_x + ' ' + currentNode.position_y)
+        console.log('Marked the current node as end point!');
+        console.log('Position = ' + currentNode.position_x + ' ' + currentNode.position_y);
+
+        let endNode = currentNode;
+
+        // breadth first search
+        bfs(firstNodeSet, endNode);
       }
       return;
     }
@@ -93,7 +99,8 @@
           let positionY = node.position_y * cellSize.value;
         
           let nextNode = nodes.value[i + 1]
-          let neighbourNode = nodes.value[i + (3 + 1)]; // vieze hek needs fix
+          
+          let neighbourNode = nodes.value[i + (rowSize.value + 1)]; // vieze hek needs fix
 
           if (nextNode == undefined) { return }
 
@@ -122,6 +129,46 @@
 
       showModal.value = false;       
     }
+  }
+
+
+  const bfs = (startNode, endNode) => {
+    let queue = [];
+
+    queue.push(startNode);
+
+    // get siblings
+    let siblings = visitAndReturnSiblings(startNode);
+
+    // add siblings to the queue
+    for (let i = 0; i < siblings.length; i++) {
+      queue.push(siblings[i]);
+    }
+    
+    // dequeue the current node
+    queue.shift();
+    console.log(queue)
+
+    // TODO get the siblings of the next node
+  }
+
+  const visitAndReturnSiblings = (currentNode) => {
+    let childNodeRightId = currentNode.id + (rowSize.value + 1);
+    let childNodeLeftId = currentNode.id - (rowSize.value + 1);
+    let childNodeTopId = currentNode.id - 1;
+    let childNodeBottomtId = currentNode.id + 1;
+    
+    nodes.value[childNodeRightId].visited = true
+    nodes.value[childNodeLeftId].visited = true
+    nodes.value[childNodeTopId].visited = true
+    nodes.value[childNodeBottomtId].visited = true
+
+    return [
+      nodes.value[childNodeRightId],
+      nodes.value[childNodeLeftId],
+      nodes.value[childNodeTopId],
+      nodes.value[childNodeBottomtId]
+    ]
   }
 
   const handleZoom = (event) => {
