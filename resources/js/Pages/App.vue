@@ -67,8 +67,14 @@
 
   const handleNodeClick = (currentNode) => {
     let firstNodeSet = nodes.value.find((currentNode) => currentNode.start === true);
+    let endNodeSet = nodes.value.find((currentNode) => currentNode.end === true);
 
     if (firstNodeSet) {
+      if (endNodeSet === undefined){
+        currentNode.end = true;
+        console.log('Marked the current node as end point!')
+        console.log('Position = ' + currentNode.position_x + ' ' + currentNode.position_y)
+      }
       return;
     }
 
