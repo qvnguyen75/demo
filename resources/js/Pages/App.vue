@@ -2,6 +2,7 @@
   <button @click="createTable" class="btn">Create table</button>
   <button @click="toggleNodes" class="btn">Toggle nodes</button>
   <button @click="toggleGrid" class="btn">Toggle grid</button>
+
   <div>
     <Modal v-if="showModal" :showModal="showModal" @tableSaved="handleTableSaved" @modalClosed="handleModalClosed" />
     <div id="diagram-container" ref="container" @wheel.prevent="handleZoom">
@@ -23,16 +24,20 @@
   import Node from './Components/Node.vue';
   import { Item } from './script.js';
 
-  const showModal = ref(false);
   const tables    = ref([]);
   const zoomLevel = ref(1); // startwaarde
   const cellSize  = ref(100);
+  const colSize   = ref(20);
+  const rowSize   = ref(9);
+  
+  // initialize as 0
+  const numberOfNodes = 0;
+  
   // const maxNodes  = ref(25);
 
   const showNodes = ref(true)
+  const showModal = ref(false);
   const showGrid = ref(true)
-
-  const rowSize = ref(9);
 
   const props = defineProps({
     entity: Object
@@ -55,7 +60,7 @@
   const createNodes = () => {
     let id = 0;
     // columns
-    for (let i = 0; i <= 19; i++) {
+    for (let i = 0; i <= colSize.value; i++) {
       // rows
       for (let j = 0; j <= rowSize.value; j++) {
         const node = new Item(i, j);
@@ -67,6 +72,7 @@
   }
 
   const handleNodeClick = (currentNode) => {
+    console.log('node visited = ' + currentNode.visited + ' . Startnode = ' + currentNode.start + ' . Endnode = ' + currentNode.end)
     let firstNodeSet = nodes.value.find((currentNode) => currentNode.start === true);
     let endNodeSet = nodes.value.find((currentNode) => currentNode.end === true);
 
@@ -131,44 +137,84 @@
     }
   }
 
-
   const bfs = (startNode, endNode) => {
-    let queue = [];
 
-    queue.push(startNode);
+    let prev = solve(startNode, endNode);
 
-    // get siblings
-    let siblings = visitAndReturnSiblings(startNode);
-
-    // add siblings to the queue
-    for (let i = 0; i < siblings.length; i++) {
-      queue.push(siblings[i]);
-    }
-    
-    // dequeue the current node
-    queue.shift();
-    console.log(queue)
-
-    // TODO get the siblings of the next node
+    reconstructPath(startNode, endNode, prev);
   }
 
-  const visitAndReturnSiblings = (currentNode) => {
-    let childNodeRightId = currentNode.id + (rowSize.value + 1);
-    let childNodeLeftId = currentNode.id - (rowSize.value + 1);
-    let childNodeTopId = currentNode.id - 1;
-    let childNodeBottomtId = currentNode.id + 1;
-    
-    nodes.value[childNodeRightId].visited = true
-    nodes.value[childNodeLeftId].visited = true
-    nodes.value[childNodeTopId].visited = true
-    nodes.value[childNodeBottomtId].visited = true
+  const solve = (startNode, endNode) => {
+    let queue = [];
+    queue.push(startNode);
 
-    return [
-      nodes.value[childNodeRightId],
-      nodes.value[childNodeLeftId],
-      nodes.value[childNodeTopId],
-      nodes.value[childNodeBottomtId]
-    ]
+    let visited = new Array(nodes.value.length).fill(false);
+    const prev = new Array(nodes.value.length).fill(null);
+   
+    while (queue.length > 0) {
+      let node = queue.shift();
+
+      if (node === endNode) { break };
+
+      let siblings = returnNeighbours(node);
+
+      for (let j = 0; j < siblings.length; j++) {
+        let sibling = siblings[j];
+        if (!visited[sibling.id]) {
+          queue.push(sibling);
+          visited[sibling.id] = true;
+          prev[sibling.id] = node;
+        }
+      }
+    }
+
+    return prev;
+  }
+
+  const returnNeighbours = (currentNode) => {
+    let neighbours        = [];
+    let childNodeRightId  = currentNode.id + (rowSize.value + 1);
+    let childNodeLeftId   = currentNode.id - (rowSize.value + 1);
+    let childNodeTopId    = currentNode.id - 1;
+    let childNodeBottomId = currentNode.id + 1;
+
+    if (nodes.value[childNodeRightId] && nodes.value[childNodeRightId].position_x <= colSize.value) {
+      neighbours.push(nodes.value[childNodeRightId]);
+    }
+    
+    if (nodes.value[childNodeLeftId] && nodes.value[childNodeLeftId].position_x >= 0) {
+      neighbours.push(nodes.value[childNodeLeftId])
+    }
+
+    if (nodes.value[childNodeBottomId] && nodes.value[childNodeBottomId].position_x == currentNode.position_x) {
+      neighbours.push(nodes.value[childNodeBottomId]);
+    }
+    
+    if (nodes.value[childNodeTopId] && nodes.value[childNodeTopId].position_x == currentNode.position_x) {
+      neighbours.push(nodes.value[childNodeTopId])
+    }
+  
+    return neighbours;
+  }
+
+  const reconstructPath = (startNode, endNode, prev) => {
+    let path = [];
+    let currentNode = endNode;
+
+    while (currentNode !== null && currentNode !== startNode) {
+      path.unshift(currentNode);
+      currentNode = prev[currentNode.id];
+    }
+
+    if (currentNode === startNode) {
+      path.unshift(startNode);
+    } else {
+      console.log("No path found");
+    }
+
+    for (let i = 0; i < path.length; i++) {
+      path[i].visited = true;
+    }
   }
 
   const handleZoom = (event) => {

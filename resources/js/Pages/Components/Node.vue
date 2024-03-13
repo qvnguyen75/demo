@@ -1,6 +1,13 @@
 <!-- Node.vue -->
 <template>
-    <div :style="[nodeStyle]" :class="{start: node.start, end: node.end, visited: node.visited}"  @click="clickNode(node)">{{ node.id }}</div>
+    <div :style="[nodeStyle]" 
+        :class="{
+          start: node.start, 
+          end: node.end, 
+          visited: (node.visited && !node.start && !node.end)
+        }"
+        @click="clickNode(node)">{{ node.id }}
+    </div>
   </template>
   
   <script setup>
