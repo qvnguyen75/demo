@@ -18,6 +18,7 @@
 
 <script setup>
   import { ref, computed, onMounted, nextTick  } from 'vue';
+  import { router } from '@inertiajs/vue3';
 
   import Modal from './Components/Modal.vue';
   import Table from './Components/Table.vue';
@@ -27,8 +28,8 @@
   const tables    = ref([]);
   const zoomLevel = ref(1); // startwaarde
   const cellSize  = ref(100);
-  const colSize   = ref(20);
-  const rowSize   = ref(9);
+  const colSize   = ref(19);
+  const rowSize   = ref(8);
   
   // initialize as 0
   const numberOfNodes = 0;
@@ -131,7 +132,16 @@
       const posX      = Math.random() * (container.offsetWidth - 120);
       const posY      = Math.random() * (container.offsetHeight - 80);
 
-      tables.value.push({ name: table.tableName, property: table.property, x: posX, y: posY });
+      const nodeId = Math.round(Math.random() * nodes.value.length);
+      console.log(nodeId);
+
+      const node = nodes.value[nodeId];
+
+      console.log( node.position_x,  node.position_y)
+
+      tables.value.push({ name: table.tableName, property: table.property, x: (node.position_x * cellSize.value), y: (node.position_y * cellSize.value) });
+
+      router.post('/', table);
 
       showModal.value = false;       
     }
