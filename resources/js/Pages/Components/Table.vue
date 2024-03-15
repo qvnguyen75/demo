@@ -6,6 +6,7 @@
     :style="tableStyle(table)"
     draggable="true"
     @mousedown="startDrag(index, $event)"
+    @mouseUp="updateTablePosition"
     >
         {{ table.name }}
         <br>
@@ -26,11 +27,11 @@
         cellSize: Number
     })
 
+    
     const startDrag = (index, event) => {
         const table = props.tables[index];
-
-        const initialX = event.clientX - table.x;
-        const initialY = event.clientY - table.y;
+        const initialX = event.clientX - table.position_x;
+        const initialY = event.clientY - table.position_y;
         
         const moveHandler = (event) => {
             // Calculate the distance moved
@@ -41,8 +42,8 @@
             const snappedX = Math.round(dx / props.cellSize) * props.cellSize;
             const snappedY = Math.round(dy / props.cellSize) * props.cellSize;
 
-            table.x = snappedX;
-            table.y = snappedY;
+            table.position_x = snappedX;
+            table.position_y = snappedY;
 
         };
 
@@ -57,8 +58,8 @@
 
     const tableStyle = computed(() => {
         return (table) => ({
-            left: table.x + 'px',
-            top: table.y + 'px',
+            left: table.position_x + 'px',
+            top: table.position_y + 'px',
             transform: `scale(${props.zoomLevel})`
         });
     });
@@ -66,8 +67,8 @@
 
 <style scoped>
 .table {
-  width: 300px;
-  height: 400px;
+  width: 200px;
+  height: 200px;
   border: 1px solid #000;
   background-color: #f9f9f9;
   position: absolute;

@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, nextTick  } from 'vue';
+  import { ref, computed, onMounted, nextTick, defineProps  } from 'vue';
   import { router } from '@inertiajs/vue3';
 
   import Modal from './Components/Modal.vue';
@@ -25,11 +25,10 @@
   import Node from './Components/Node.vue';
   import { Item } from './script.js';
 
-  const tables    = ref([]);
   const zoomLevel = ref(1); // startwaarde
   const cellSize  = ref(100);
-  const colSize   = ref(19);
-  const rowSize   = ref(8);
+  const colSize   = ref(20);
+  const rowSize   = ref(9);
   
   // initialize as 0
   const numberOfNodes = 0;
@@ -41,8 +40,10 @@
   const showGrid = ref(true)
 
   const props = defineProps({
-    entity: Object
+    tables: Array
   })
+
+  const tables = ref(props.tables);
 
   const nodes= ref([])
 
@@ -128,18 +129,16 @@
 
   const handleTableSaved = (table) => {
     if (table.tableName && table.property) {
-      const container = document.getElementById("diagram-container");
-      const posX      = Math.random() * (container.offsetWidth - 120);
-      const posY      = Math.random() * (container.offsetHeight - 80);
-
       const nodeId = Math.round(Math.random() * nodes.value.length);
-      console.log(nodeId);
 
       const node = nodes.value[nodeId];
 
-      console.log( node.position_x,  node.position_y)
+      table.position_x = node.position_x * cellSize.value;
+      table.position_y = node.position_y * cellSize.value;
 
-      tables.value.push({ name: table.tableName, property: table.property, x: (node.position_x * cellSize.value), y: (node.position_y * cellSize.value) });
+      // console.log(table)
+
+      // props.tables.push(table);
 
       router.post('/', table);
 
@@ -260,6 +259,8 @@
 
   onMounted(() => {
     createNodes();
+
+    console.log(props.tables)
   })
 </script>
 
@@ -286,4 +287,4 @@
   }
 
 </style>
-
+./Components/table.vue/index.js./Components/Table.vue/index.js

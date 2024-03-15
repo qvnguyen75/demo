@@ -29,7 +29,7 @@
     const saveTable = () => {
         const table = {
             tableName: tableName.value,
-            property: property.value
+            property: property.value 
         }
 
         emit('tableSaved', table);

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('entities', function (Blueprint $table) {
+        Schema::create('tables', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('foreign_key');
+            $table->string('property');
             $table->integer('position_x');
             $table->integer('position_y');
             $table->timestamps();
