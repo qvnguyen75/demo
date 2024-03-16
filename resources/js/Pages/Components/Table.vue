@@ -5,8 +5,7 @@
     class="table"
     :style="tableStyle(table)"
     draggable="true"
-    @mousedown="startDrag(index, $event)"
-    @mouseUp="updateTablePosition"
+    @click="startDrag(index, $event)"
     >
         {{ table.name }}
         <br>
@@ -27,14 +26,16 @@
         cellSize: Number
     })
 
-    
+    let selected = false;
+
     const startDrag = (index, event) => {
         const table = props.tables[index];
         const initialX = event.clientX - table.position_x;
         const initialY = event.clientY - table.position_y;
-        
+
         const moveHandler = (event) => {
-            // Calculate the distance moved
+            if (selected) {
+                // Calculate the distance moved
             const dx = event.clientX - initialX;
             const dy = event.clientY - initialY;
 
@@ -45,15 +46,18 @@
             table.position_x = snappedX;
             table.position_y = snappedY;
 
+            }
         };
 
-        const upHandler = () => {
+        selected = !selected;
+
+        if (selected) {
+            console.log('table selected')
+            document.addEventListener("mousemove", moveHandler);
+        } else {
+            console.log('table not selected')
             document.removeEventListener("mousemove", moveHandler);
-            document.removeEventListener("mouseup", upHandler);
-        };
-
-        document.addEventListener("mousemove", moveHandler);
-        document.addEventListener("mouseup", upHandler);
+        }
     }
 
     const tableStyle = computed(() => {
