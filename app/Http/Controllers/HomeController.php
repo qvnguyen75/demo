@@ -29,16 +29,9 @@ class HomeController extends Controller
             'position_x' => $request->input('position_x'),
             'position_y' => $request->input('position_y')
         ]);
-
-        $tables = Table::all();
-
-        $data = [
-            'tables' => $tables
-        ];
     }
 
     public function updateTablePosition(Request $request) {
-       
         DB::table('tables')->where('id', $request->id)->update(
             ['position_x' => $request->position_x,
             'position_y' => $request->position_y]
