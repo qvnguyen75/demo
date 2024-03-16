@@ -3,9 +3,10 @@
     v-for="(table, index) in tables"
     :key="index"
     class="table"
+    :class="{selected: table.selected}"
     :style="tableStyle(table)"
     draggable="true"
-    @click="startDrag(index, $event)"
+    @click="startDrag(table, $event)"
     >
         {{ table.name }}
         <br>
@@ -15,6 +16,7 @@
 
 <script setup>
     import { defineProps, computed } from 'vue';
+    import { router } from '@inertiajs/vue3';
 
     const props = defineProps({
         tables: {
@@ -26,37 +28,34 @@
         cellSize: Number
     })
 
-    let selected = false;
-
-    const startDrag = (index, event) => {
-        const table = props.tables[index];
+    const startDrag = (table, event) => {
         const initialX = event.clientX - table.position_x;
         const initialY = event.clientY - table.position_y;
 
         const moveHandler = (event) => {
-            if (selected) {
+            if (table.selected) {
                 // Calculate the distance moved
-            const dx = event.clientX - initialX;
-            const dy = event.clientY - initialY;
+                const dx = event.clientX - initialX;
+                const dy = event.clientY - initialY;
 
-            // const gridSize = 50;
-            const snappedX = Math.round(dx / props.cellSize) * props.cellSize;
-            const snappedY = Math.round(dy / props.cellSize) * props.cellSize;
+                const snappedX = Math.round(dx / props.cellSize) * props.cellSize;
+                const snappedY = Math.round(dy / props.cellSize) * props.cellSize;
 
-            table.position_x = snappedX;
-            table.position_y = snappedY;
-
+                table.position_x = snappedX;
+                table.position_y = snappedY;
             }
         };
 
-        selected = !selected;
+        table.selected= !table.selected;
 
-        if (selected) {
-            console.log('table selected')
+        if (table.selected) {
+            console.log('table selected');
             document.addEventListener("mousemove", moveHandler);
         } else {
             console.log('table not selected')
             document.removeEventListener("mousemove", moveHandler);
+            // console.log(table);
+            router.put('/', table);
         }
     }
 
@@ -67,6 +66,8 @@
             transform: `scale(${props.zoomLevel})`
         });
     });
+
+
 </script>
 
 <style scoped>
@@ -77,5 +78,9 @@
   background-color: #f9f9f9;
   position: absolute;
   cursor: move;
+}
+
+.selected {
+    background-color: green;
 }
 </style>

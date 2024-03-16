@@ -11,12 +11,9 @@
   </template>
   
   <script setup>
-  import { defineProps, ref, onMounted, watch, nextTick } from 'vue';
+  import { defineProps } from 'vue';
 
   const props = defineProps({
-    isStart: Boolean,
-    isEnd: Boolean,
-    visited: Boolean,
     node: Object,
     cellSize: Number
   });

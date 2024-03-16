@@ -16,4 +16,5 @@ use App\Http\Controllers\HomeController;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::post('/', [HomeController::class, 'createTable']);
+Route::put('/', [HomeController::class, 'updateTablePosition']);
 

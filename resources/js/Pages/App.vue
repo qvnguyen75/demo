@@ -135,10 +135,9 @@
 
       table.position_x = node.position_x * cellSize.value;
       table.position_y = node.position_y * cellSize.value;
+      table.selected = false;
 
-      // console.log(table)
-
-      // props.tables.push(table);
+      tables.value.push(table);
 
       router.post('/', table);
 
@@ -259,8 +258,6 @@
 
   onMounted(() => {
     createNodes();
-
-    console.log(props.tables)
   })
 </script>
 
