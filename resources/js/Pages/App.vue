@@ -15,7 +15,7 @@
             class="node" 
             @nodeClicked="handleNodeClick"
           />
-          <Table :tables="tables" :nodes="nodes" @tableSelected="handleTableSelected"  :zoomLevel="zoomLevel" :cellSize="cellSize" />
+          <Table :tables="tables" :nodes="nodes" @onTableMove="onTableMove"  :zoomLevel="zoomLevel" :cellSize="cellSize" />
       </div>
       
       <svg v-if="showGrid" id="lines" width="10000" height="10000" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -53,6 +53,8 @@
   const tables = ref(props.tables);
   const nodes  = ref([]);
 
+  let tableStartNodes = [];
+
   const createTable = () => {
     showModal.value = true;
   }
@@ -79,9 +81,23 @@
     } 
   }
 
-  const handleTableSelected = (table) => {
-    // TODO update start node
-    console.log(table.node_id) 
+  const onTableMove = (table) => {
+    if (tableStartNodes.length > 0) {
+      let previousStartNodeId = tableStartNodes[0].id;
+      let previousStartNode   = nodes.value[previousStartNodeId];
+
+      previousStartNode.start = false;
+
+      tableStartNodes.shift();
+
+    }
+
+    // always index - 1 to get the node above the table
+    let currentTableNode = nodes.value[table.node_id - 1];
+    
+    tableStartNodes.push(currentTableNode);
+
+    currentTableNode.start = true;
   }
 
   const handleNodeClick = (currentNode) => {

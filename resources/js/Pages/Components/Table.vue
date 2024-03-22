@@ -18,7 +18,7 @@
     import { computed, ref } from 'vue';
     import { router } from '@inertiajs/vue3';
 
-    const emit = defineEmits(['tableSelected']);
+    const emit = defineEmits(['onTableMove']);
 
     const props = defineProps({
         tables: {
@@ -53,7 +53,7 @@
                     // update corresponding table node and emit to parent
                     table.node_id = correspondingTableNode.id;
 
-                    emit('tableSelected', table);
+                    emit('onTableMove', table);
                 }
 
                 table.position_x = snappedX;
