@@ -8,16 +8,23 @@
     <div id="diagram-container" ref="container" @wheel.prevent="handleZoom">
       <div class="grid" :style="gridStyle"></div>
       <div class="grid-container">
-        <Node v-if="showNodes" v-for="(node, index) in nodes" :key="index" :node="node" :cellSize="cellSize" class="node" @nodeClicked="handleNodeClick" />
+          <Node v-if="showNodes"
+            v-for="(node, index) in nodes" :key="index" 
+            :node="node" 
+            :cellSize="cellSize" 
+            class="node" 
+            @nodeClicked="handleNodeClick"
+          />
+          <Table :tables="tables" :nodes="nodes" @tableSelected="handleTableSelected"  :zoomLevel="zoomLevel" :cellSize="cellSize" />
       </div>
-      <Table :tables="tables" :zoomLevel="zoomLevel" :cellSize="cellSize" />
+      
       <svg v-if="showGrid" id="lines" width="10000" height="10000" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, nextTick, defineProps  } from 'vue';
+  import { ref, computed, onMounted, nextTick } from 'vue';
   import { router } from '@inertiajs/vue3';
 
   import Modal from './Components/Modal.vue';
@@ -35,17 +42,16 @@
   
   // const maxNodes  = ref(25);
 
-  const showNodes = ref(true)
+  const showNodes = ref(true);
   const showModal = ref(false);
-  const showGrid = ref(true)
+  const showGrid = ref(true);
 
   const props = defineProps({
     tables: Array
-  })
+  });
 
   const tables = ref(props.tables);
-
-  const nodes= ref([])
+  const nodes  = ref([]);
 
   const createTable = () => {
     showModal.value = true;
@@ -73,13 +79,30 @@
     } 
   }
 
-  const handleNodeClick = (currentNode) => {
-    console.log('node visited = ' + currentNode.visited + ' . Startnode = ' + currentNode.start + ' . Endnode = ' + currentNode.end)
-    let firstNodeSet = nodes.value.find((currentNode) => currentNode.start === true);
-    let endNodeSet = nodes.value.find((currentNode) => currentNode.end === true);
+  const handleTableSelected = (table) => {
+    // TODO update start node
+    console.log(table.node_id) 
+  }
 
-    if (firstNodeSet) {
-      if (endNodeSet === undefined){
+  const handleNodeClick = (currentNode) => {
+    // if startnode is set 
+    if (currentNode.start) {
+      console.log('current node is the starting node');
+      return;
+    }
+
+    console.log('node visited = ' + currentNode.visited + ' . Startnode = ' + currentNode.start + ' . Endnode = ' + currentNode.end)
+    let startNode = nodes.value.find((currentNode) => currentNode.start === true);
+    let endNode   = nodes.value.find((currentNode) => currentNode.end === true);
+
+    if (startNode === undefined) {
+      currentNode.start = true;
+      console.log('Marked the current node as starting point!')
+      console.log('Position = ' + currentNode.position_x + ' ' + currentNode.position_y)
+    }
+
+    if (startNode) {
+      if (endNode === undefined){
         currentNode.end = true;
         console.log('Marked the current node as end point!');
         console.log('Position = ' + currentNode.position_x + ' ' + currentNode.position_y);
@@ -87,15 +110,8 @@
         let endNode = currentNode;
 
         // breadth first search
-        bfs(firstNodeSet, endNode);
+        bfs(startNode, endNode);
       }
-      return;
-    }
-
-    if (firstNodeSet === undefined) {
-      currentNode.start = true;
-      console.log('Marked the current node as starting point!')
-      console.log('Position = ' + currentNode.position_x + ' ' + currentNode.position_y)
     }
   }
 
@@ -129,13 +145,15 @@
 
   const handleTableSaved = (table) => {
     if (table.tableName && table.property) {
-      const nodeId = Math.round(Math.random() * nodes.value.length);
+      // random position on grid
+      const nodeId = Math.round(Math.random() * (nodes.value.length / 2));
 
       const node = nodes.value[nodeId];
 
+      table.node_id    = node.id;
       table.position_x = node.position_x * cellSize.value;
       table.position_y = node.position_y * cellSize.value;
-      table.selected = false;
+      table.selected   = false;
 
       tables.value.push(table);
 
@@ -146,7 +164,6 @@
   }
 
   const bfs = (startNode, endNode) => {
-
     let prev = solve(startNode, endNode);
 
     reconstructPath(startNode, endNode, prev);
@@ -279,7 +296,7 @@
     width: 100px;
     height: 100px; 
     /* background-color: blue;  */
-    border-radius: 50%;
+    /* border-radius: 50%; */
     position: absolute;
   }
 

@@ -15,8 +15,10 @@
 </template>
 
 <script setup>
-    import { defineProps, computed } from 'vue';
+    import { computed, ref } from 'vue';
     import { router } from '@inertiajs/vue3';
+
+    const emit = defineEmits(['tableSelected']);
 
     const props = defineProps({
         tables: {
@@ -25,8 +27,12 @@
         zoomLevel: {
             type: Number
         },
-        cellSize: Number
+        cellSize: Number,
+        nodes: Array
+
     })
+
+    let correspondingTableNode = ref(Object);
 
     const startDrag = (table, event) => {
         const initialX = event.clientX - table.position_x;
@@ -41,12 +47,21 @@
                 const snappedX = Math.round(dx / props.cellSize) * props.cellSize;
                 const snappedY = Math.round(dy / props.cellSize) * props.cellSize;
 
+                if (table.position_x !== snappedX || table.position_y !== snappedY) {
+                    correspondingTableNode = props.nodes.find(node => node.position_x * props.cellSize === snappedX && node.position_y * props.cellSize === snappedY );
+
+                    // update corresponding table node and emit to parent
+                    table.node_id = correspondingTableNode.id;
+
+                    emit('tableSelected', table);
+                }
+
                 table.position_x = snappedX;
                 table.position_y = snappedY;
             }
         };
 
-        table.selected= !table.selected;
+        table.selected = !table.selected;
 
         if (table.selected) {
             console.log('table selected');
@@ -54,7 +69,9 @@
         } else {
             console.log('table not selected')
             document.removeEventListener("mousemove", moveHandler);
-            // console.log(table);
+
+            table.node_id = correspondingTableNode.id;
+
             router.put('/', table);
         }
     }

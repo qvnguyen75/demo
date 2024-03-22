@@ -22,19 +22,25 @@ class HomeController extends Controller
     }
 
     public function createTable(Request $request) {
-        DB::table('tables')->insert([
-            'name' => $request->input('tableName'),
-            'selected' => $request->input('selected'),
-            'property' => $request->input('property'),
-            'position_x' => $request->input('position_x'),
-            'position_y' => $request->input('position_y')
-        ]);
+        DB::table('tables')->insert(
+            [
+                'name'       => $request->input('tableName'),
+                'node_id'    => $request->input('node_id'),
+                'selected'   => $request->input('selected'),
+                'property'   => $request->input('property'),
+                'position_x' => $request->input('position_x'),
+                'position_y' => $request->input('position_y')
+            ]
+        );
     }
 
     public function updateTablePosition(Request $request) {
         DB::table('tables')->where('id', $request->id)->update(
-            ['position_x' => $request->position_x,
-            'position_y' => $request->position_y]
+            [
+                'node_id'    => $request->node_id,
+                'position_x' => $request->position_x,
+                'position_y' => $request->position_y
+            ]
         );
     }
 }

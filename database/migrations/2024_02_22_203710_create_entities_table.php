@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('node_id')->nullable();
             $table->boolean('selected')->nullable();
             $table->string('property');
             $table->integer('position_x');

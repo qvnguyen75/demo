@@ -6,12 +6,13 @@
           end: node.end, 
           visited: (node.visited && !node.start && !node.end)
         }"
-        @click="clickNode(node)">{{ node.id }}
+        @click="clickNode(node)"
+        >
+          {{ node.id }}
     </div>
   </template>
   
   <script setup>
-  import { defineProps } from 'vue';
 
   const props = defineProps({
     node: Object,
