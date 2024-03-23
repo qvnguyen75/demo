@@ -17,7 +17,6 @@
           />
           <Table :tables="tables" :nodes="nodes" @onTableMove="onTableMove"  :zoomLevel="zoomLevel" :cellSize="cellSize" />
       </div>
-      
       <svg v-if="showGrid" id="lines" width="10000" height="10000" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
   </div>
@@ -89,7 +88,6 @@
       previousStartNode.start = false;
 
       tableStartNodes.shift();
-
     }
 
     // always index - 1 to get the node above the table
@@ -169,7 +167,7 @@
       table.node_id    = node.id;
       table.position_x = node.position_x * cellSize.value;
       table.position_y = node.position_y * cellSize.value;
-      table.selected   = false;
+      table.start      = false;
 
       tables.value.push(table);
 

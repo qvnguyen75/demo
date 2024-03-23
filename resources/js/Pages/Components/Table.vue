@@ -3,7 +3,7 @@
     v-for="(table, index) in tables"
     :key="index"
     class="table"
-    :class="{selected: table.selected}"
+    :class="{start: table.start, end: table.end}"
     :style="tableStyle(table)"
     draggable="true"
     @click="startDrag(table, $event)"
@@ -38,8 +38,11 @@
         const initialX = event.clientX - table.position_x;
         const initialY = event.clientY - table.position_y;
 
+        let startNodeSet =  props.nodes.find(node => node.start === true);
+        console.log(startNodeSet)
+
         const moveHandler = (event) => {
-            if (table.selected) {
+            if (table.start) {
                 // Calculate the distance moved
                 const dx = event.clientX - initialX;
                 const dy = event.clientY - initialY;
@@ -61,9 +64,9 @@
             }
         };
 
-        table.selected = !table.selected;
+        table.start = !table.start;
 
-        if (table.selected) {
+        if (table.start) {
             console.log('table selected');
             document.addEventListener("mousemove", moveHandler);
         } else {
@@ -97,7 +100,11 @@
   cursor: move;
 }
 
-.selected {
+.start {
     background-color: green;
 }
+
+.end {
+    background-color: red;
+  }
 </style>

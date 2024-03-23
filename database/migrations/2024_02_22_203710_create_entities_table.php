@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('node_id')->nullable();
-            $table->boolean('selected')->nullable();
+            $table->boolean('start')->nullable();
+            $table->boolean('end')->nullable();
             $table->string('property');
             $table->integer('position_x');
             $table->integer('position_y');
