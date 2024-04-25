@@ -15,7 +15,11 @@
             class="node" 
             @nodeClicked="handleNodeClick"
           />
-          <Table :tables="tables" :nodes="nodes" @onTableMove="onTableMove"  :zoomLevel="zoomLevel" :cellSize="cellSize" />
+          <Table :tables="tables"
+            :nodes="nodes"
+            @onTableMove="onTableMove"
+            :zoomLevel="zoomLevel"
+            :cellSize="cellSize" />
       </div>
       <svg v-if="showGrid" id="lines" width="10000" height="10000" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
@@ -91,11 +95,11 @@
     }
 
     // always index - 1 to get the node above the table
-    let currentTableNode = nodes.value[table.node_id - 1];
+    let correspondingTableNode = nodes.value[table.node_id - 1];
     
-    tableStartNodes.push(currentTableNode);
+    tableStartNodes.push(correspondingTableNode);
 
-    currentTableNode.start = true;
+    correspondingTableNode.start = true;
   }
 
   const handleNodeClick = (currentNode) => {

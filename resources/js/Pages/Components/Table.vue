@@ -5,7 +5,6 @@
     class="table"
     :class="{start: table.start, end: table.end}"
     :style="tableStyle(table)"
-    draggable="true"
     @click="startDrag(table, $event)"
     >
         {{ table.name }}
@@ -18,7 +17,7 @@
     import { computed, ref } from 'vue';
     import { router } from '@inertiajs/vue3';
 
-    const emit = defineEmits(['onTableMove']);
+    const emit = defineEmits(['onTableMove', 'onTableClick']);
 
     const props = defineProps({
         tables: {
@@ -34,15 +33,15 @@
 
     let correspondingTableNode = ref(Object);
 
-    const startDrag = (table, event) => {
+    let tableSelected = false;
+
+    const startDrag = (table, event) => {    
         const initialX = event.clientX - table.position_x;
         const initialY = event.clientY - table.position_y;
 
-        let startNodeSet =  props.nodes.find(node => node.start === true);
-        console.log(startNodeSet)
-
         const moveHandler = (event) => {
-            if (table.start) {
+            if (tableSelected) {
+                console.log(2.5);
                 // Calculate the distance moved
                 const dx = event.clientX - initialX;
                 const dy = event.clientY - initialY;
@@ -64,19 +63,18 @@
             }
         };
 
-        table.start = !table.start;
-
-        if (table.start) {
-            console.log('table selected');
-            document.addEventListener("mousemove", moveHandler);
-        } else {
-            console.log('table not selected')
+        if (tableSelected) {
             document.removeEventListener("mousemove", moveHandler);
-
+            tableSelected = false;
             table.node_id = correspondingTableNode.id;
-
             router.put('/', table);
+            return;
         }
+        
+        document.addEventListener("mousemove", moveHandler);
+        
+        table.start = true;
+        tableSelected = true;   
     }
 
     const tableStyle = computed(() => {
@@ -86,8 +84,6 @@
             transform: `scale(${props.zoomLevel})`
         });
     });
-
-
 </script>
 
 <style scoped>
