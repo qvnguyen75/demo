@@ -2,10 +2,11 @@
     <div
     v-for="(table, index) in tables"
     :key="index"
+    :id="table.id"
     class="table"
     :class="{start: table.start, end: table.end}"
     :style="tableStyle(table)"
-    @click="startDrag(table, $event)"
+    @click.self="startDrag(table, $event)"
     >
         {{ table.name }}
         <br>
@@ -17,32 +18,26 @@
     import { computed, ref } from 'vue';
     import { router } from '@inertiajs/vue3';
 
-    const emit = defineEmits(['onTableMove', 'onTableClick']);
+    const emit = defineEmits(['onTableMove']);
 
     const props = defineProps({
-        tables: {
-            type: Array
-        },
-        zoomLevel: {
-            type: Number
-        },
-        cellSize: Number,
-        nodes: Array
-
+        tables: Array,
+        nodes: Array,
+        zoomLevel:Number,
+        cellSize: Number
     })
 
     let correspondingTableNode = ref(Object);
 
     let tableSelected = false;
 
-    const startDrag = (table, event) => {    
-        const initialX = event.clientX - table.position_x;
-        const initialY = event.clientY - table.position_y;
-
-        const moveHandler = (event) => {
+    const makeMoveHandler = (table, initialX, initialY) => {
+        
+        return function (event) {
+            console.log('test');
             if (tableSelected) {
-                console.log(2.5);
                 // Calculate the distance moved
+                console.log(table.position_x);
                 const dx = event.clientX - initialX;
                 const dy = event.clientY - initialY;
 
@@ -51,7 +46,6 @@
 
                 if (table.position_x !== snappedX || table.position_y !== snappedY) {
                     correspondingTableNode = props.nodes.find(node => node.position_x * props.cellSize === snappedX && node.position_y * props.cellSize === snappedY );
-
                     // update corresponding table node and emit to parent
                     table.node_id = correspondingTableNode.id;
 
@@ -61,20 +55,46 @@
                 table.position_x = snappedX;
                 table.position_y = snappedY;
             }
-        };
+        }
+            
+    };
+
+    const startDrag = (table, event) => {
+        let tableHtml = document.getElementById(table.id);
+        const initialX = event.clientX - table.position_x;
+        const initialY = event.clientY - table.position_y;
+
+        let moveHandler = makeMoveHandler(table, initialX, initialY);
 
         if (tableSelected) {
-            document.removeEventListener("mousemove", moveHandler);
+            tableHtml.removeEventListener("mousemove", moveHandler);
             tableSelected = false;
+
+            // save corresponding table node
             table.node_id = correspondingTableNode.id;
             router.put('/', table);
             return;
         }
-        
-        document.addEventListener("mousemove", moveHandler);
-        
-        table.start = true;
-        tableSelected = true;   
+
+        tableSelected = true;
+
+        if (startTableSet() && endTableSet()) {
+            tableHtml.addEventListener("mousemove", moveHandler);
+        } else if(startTableSet() && !endTableSet()) {
+            tableHtml.addEventListener("mousemove", moveHandler);
+            table.end = true;
+        } else {
+            tableHtml.addEventListener("mousemove", moveHandler);
+            table.start = true;
+        }
+    }
+
+    const startTableSet = () => {
+        return props.tables.find(table => table.start === true)
+    }
+
+    const endTableSet = () => {
+        return props.tables.find(table => table.end === true)
     }
 
     const tableStyle = computed(() => {
