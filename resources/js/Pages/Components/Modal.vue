@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-    import {  defineProps, ref } from 'vue';
+    import { ref } from 'vue';
 
     const emit      = defineEmits(['tableSaved', 'modalClosed'])
     const tableName = ref('');

@@ -34,7 +34,6 @@
     const makeMoveHandler = (table, initialX, initialY) => {
         
         return function (event) {
-            console.log('test');
             if (tableSelected) {
                 // Calculate the distance moved
                 console.log(table.position_x);
