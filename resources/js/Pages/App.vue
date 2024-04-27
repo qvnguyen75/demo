@@ -63,6 +63,8 @@
   let endNode = null;
   let startTableSet = false;
   let endTableSet = false;
+  let pathSet = false;
+  let pathList = [];
 
   const createTable = () => {
     showModal.value = true;
@@ -125,10 +127,9 @@
     if (table.end) {
       tableEndNodes.push(correspondingTableNode);
       correspondingTableNode.end = true;
-      console.log(startNode);
-    }
 
-    bfs(startNode, endNode);
+      bfs(startNode, endNode);
+    }
   }
 
   const onTableClick = (startTableSet, endTableSet) => {
@@ -282,6 +283,14 @@
 
   const reconstructPath = (startNode, endNode, prev) => {
     let path = [];
+
+    if (pathList.length > 0) {
+    // unset last path      
+      for (let i = 0; i < pathList[0].length; i++) {
+        pathList[0][i].visited = false;
+      }
+    }
+    // and update new path
     let currentNode = endNode;
 
     while (currentNode !== null && currentNode !== startNode) {
@@ -298,6 +307,8 @@
     for (let i = 0; i < path.length; i++) {
       path[i].visited = true;
     }
+
+    pathList.unshift(path);
   }
 
   const handleZoom = (event) => {
