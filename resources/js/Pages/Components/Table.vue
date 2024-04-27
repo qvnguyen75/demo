@@ -18,7 +18,7 @@
     import { computed, ref } from 'vue';
     import { router } from '@inertiajs/vue3';
 
-    const emit = defineEmits(['onTableMove']);
+    const emit = defineEmits(['onTableMove', 'onTableClick']);
 
     const props = defineProps({
         tables: Array,
@@ -32,11 +32,9 @@
     let tableSelected = false;
 
     const makeMoveHandler = (table, initialX, initialY) => {
-        
         return function (event) {
             if (tableSelected) {
                 // Calculate the distance moved
-                console.log(table.position_x);
                 const dx = event.clientX - initialX;
                 const dy = event.clientY - initialY;
 
@@ -59,6 +57,8 @@
     };
 
     const startDrag = (table, event) => {
+        emit('onTableClick', startTableSet(), endTableSet());
+
         let tableHtml = document.getElementById(table.id);
         const initialX = event.clientX - table.position_x;
         const initialY = event.clientY - table.position_y;

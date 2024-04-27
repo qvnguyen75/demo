@@ -18,6 +18,7 @@
           <Table :tables="tables"
             :nodes="nodes"
             @onTableMove="onTableMove"
+            @onTableClick="onTableClick"
             :zoomLevel="zoomLevel"
             :cellSize="cellSize" />
       </div>
@@ -57,6 +58,11 @@
   const nodes  = ref([]);
 
   let tableStartNodes = [];
+  let tableEndNodes = [];
+  let startNode = null;
+  let endNode = null;
+  let startTableSet = false;
+  let endTableSet = false;
 
   const createTable = () => {
     showModal.value = true;
@@ -85,21 +91,55 @@
   }
 
   const onTableMove = (table) => {
+    // always index - 1 to get the node above the table
+    let correspondingTableNode = nodes.value[table.node_id - 1];
+
     if (tableStartNodes.length > 0) {
       let previousStartNodeId = tableStartNodes[0].id;
       let previousStartNode   = nodes.value[previousStartNodeId];
 
-      previousStartNode.start = false;
-
-      tableStartNodes.shift();
+      if (table.start) {
+        previousStartNode.start = false;
+        tableStartNodes.shift();
+        startNode = correspondingTableNode;
+      }
+      
+    }
+    
+    if (table.start) {
+      tableStartNodes.push(correspondingTableNode);
+      correspondingTableNode.start = true;
     }
 
-    // always index - 1 to get the node above the table
-    let correspondingTableNode = nodes.value[table.node_id - 1];
-    
-    tableStartNodes.push(correspondingTableNode);
+    if (tableEndNodes.length > 0) {
+      let previousStartNodeId = tableEndNodes[0].id;
+      let previousStartNode   = nodes.value[previousStartNodeId];
 
-    correspondingTableNode.start = true;
+      if (table.end) {
+        previousStartNode.end = false;
+        tableEndNodes.shift();
+        endNode = correspondingTableNode;
+      }
+    }
+
+    if (table.end) {
+      tableEndNodes.push(correspondingTableNode);
+      correspondingTableNode.end = true;
+      console.log(startNode);
+    }
+
+    bfs(startNode, endNode);
+  }
+
+  const onTableClick = (startTableSet, endTableSet) => {
+    if (startTableSet) {
+      startTableSet = true;
+      console.log('startTable set');
+    }
+    if (endTableSet) {
+      endTableSet = true;
+      console.log('endTable set');
+    }
   }
 
   const handleNodeClick = (currentNode) => {
