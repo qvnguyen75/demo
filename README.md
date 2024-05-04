@@ -1,3 +1,3 @@
 LARAVEL - VUE
 
-Implementation of the Bread first algorithm to find the shortest path between 2 nodes in a grid.
+Implementation of the Breadth-first search algorithm (BFS) to find the shortest path between 2 nodes in a grid.
