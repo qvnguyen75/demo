@@ -57,7 +57,7 @@
     };
 
     const startDrag = (table, event) => {
-        emit('onTableClick', startTableSet(), endTableSet());
+        emit('onTableClick', isStartTableSet(), isEndTableSet());
 
         let tableHtml = document.getElementById(table.id);
         const initialX = event.clientX - table.position_x;
@@ -77,9 +77,9 @@
 
         tableSelected = true;
 
-        if (startTableSet() && endTableSet()) {
+        if (isStartTableSet() && isEndTableSet()) {
             tableHtml.addEventListener("mousemove", moveHandler);
-        } else if(startTableSet() && !endTableSet()) {
+        } else if(isStartTableSet() && !isEndTableSet()) {
             tableHtml.addEventListener("mousemove", moveHandler);
             table.end = true;
         } else {
@@ -88,11 +88,11 @@
         }
     }
 
-    const startTableSet = () => {
+    const isStartTableSet = () => {
         return props.tables.find(table => table.start === true)
     }
 
-    const endTableSet = () => {
+    const isEndTableSet = () => {
         return props.tables.find(table => table.end === true)
     }
 
@@ -107,7 +107,7 @@
 
 <style scoped>
 .table {
-  width: 200px;
+  width: 150px;
   height: 200px;
   border: 1px solid #000;
   background-color: #f9f9f9;

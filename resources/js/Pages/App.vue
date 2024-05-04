@@ -18,7 +18,6 @@
           <Table :tables="tables"
             :nodes="nodes"
             @onTableMove="onTableMove"
-            @onTableClick="onTableClick"
             :zoomLevel="zoomLevel"
             :cellSize="cellSize" />
       </div>
@@ -37,9 +36,9 @@
   import { Item } from './script.js';
 
   const zoomLevel = ref(1); // startwaarde
-  const cellSize  = ref(100);
-  const colSize   = ref(20);
-  const rowSize   = ref(9);
+  const cellSize  = ref(25);
+  const colSize   = ref(76);
+  const rowSize   = ref(35);
   
   // initialize as 0
   const numberOfNodes = 0;
@@ -59,13 +58,11 @@
 
   let tableStartNodes = [];
   let tableEndNodes = [];
+  let pathList = [];
   let startNode = null;
   let endNode = null;
-  let startTableSet = false;
-  let endTableSet = false;
-  let pathSet = false;
-  let pathList = [];
-
+ 
+  
   const createTable = () => {
     showModal.value = true;
   }
@@ -107,11 +104,6 @@
       }
       
     }
-    
-    if (table.start) {
-      tableStartNodes.push(correspondingTableNode);
-      correspondingTableNode.start = true;
-    }
 
     if (tableEndNodes.length > 0) {
       let previousStartNodeId = tableEndNodes[0].id;
@@ -123,23 +115,20 @@
         endNode = correspondingTableNode;
       }
     }
+    
+    if (table.start) {
+      tableStartNodes.push(correspondingTableNode);
+      correspondingTableNode.start = true;
+      if (startNode, endNode) {
+        bfs(startNode, endNode);
+      }
+    }
 
     if (table.end) {
       tableEndNodes.push(correspondingTableNode);
       correspondingTableNode.end = true;
 
       bfs(startNode, endNode);
-    }
-  }
-
-  const onTableClick = (startTableSet, endTableSet) => {
-    if (startTableSet) {
-      startTableSet = true;
-      console.log('startTable set');
-    }
-    if (endTableSet) {
-      endTableSet = true;
-      console.log('endTable set');
     }
   }
 
@@ -362,8 +351,8 @@
 }
 
 .node {
-    width: 100px;
-    height: 100px; 
+    width: 25px;
+    height: 25px; 
     /* background-color: blue;  */
     /* border-radius: 50%; */
     position: absolute;

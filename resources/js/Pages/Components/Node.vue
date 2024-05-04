@@ -8,7 +8,7 @@
         }"
         @click="clickNode(node)"
         >
-          {{ node.id }}
+          <!-- {{ node.id }} -->
     </div>
   </template>
   
